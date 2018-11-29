@@ -302,6 +302,11 @@ function usual(&$out) {
         $hue->setLightToHex($dev_rec_prop["HUEDEVICES_ID"], $value);
         if ($dev_rec_prop["TITLE"]=="bri")
             $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], array("bri"=>round(254/100*$value)));
+		if ($dev_rec_prop["TITLE"]=="on")
+            if ($value==1)
+            $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], true);
+        else
+            $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], false);
 
 
     }
