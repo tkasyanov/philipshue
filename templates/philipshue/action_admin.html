@@ -1,0 +1,94 @@
+
+<!-- table zwave_devices search -->
+<div>
+ [ <a href="#" onClick="$('#api_settings').toggle();return false;"><#LANG_SETUP#></a> ]
+</div>
+<div style="display:none" id='api_settings'>
+&nbsp;
+<form action="?" method="post" enctype="multipart/form-data" name="frmEdit" class="form-horizontal">
+<fieldset>
+<div class="form-group">
+ <label class="control-label"[#if ERR_API_URL#] style="color:red;font-weight:bold"[#endif#]>
+ API URL:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="api_url" value="[#API_URL#]" class="input"></div>
+</div>
+<div class="form-group">
+ <label class="control-label"[#if ERR_API_KEY#] style="color:red;font-weight:bold"[#endif#]>
+ API KEY:
+ (*)
+ </label>
+ <div class="controls"><input type="text" name="api_key" value="[#API_KEY#]" class="input"></div>
+</div>
+    <div class="form-group">
+        <div class="controls"><input type="checkbox" name="api_log_debmes" value="1"[#if API_LOG_DEBMES="1"#] checked[#endif#]>
+            DebMes
+            <span class='support-hover' tabindex="1" data-title="Enable log">
+						<i class="glyphicon glyphicon-info-sign"></i>
+					</span>
+        </div>
+    </div>
+<div class="form-actions">
+<button type="submit" name="subm" value="Submit" class="btn btn-primary"><#LANG_UPDATE#></button>
+<input type="hidden" name="view_mode" value="update_settings">
+<input type="hidden" name="mode" value="update">
+</div>
+</fieldset>
+</form>
+</div>
+ <!-- action usual -->
+ [#if DATA_SOURCE="huedevices" || DATA_SOURCE=""#]
+ <!-- table huedevices search -->
+ [#if VIEW_MODE="search_huedevices" || VIEW_MODE=""#]
+  [#inc huedevices_search_admin.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices search -->
+ <!-- table huedevices edit -->
+ [#if VIEW_MODE="edit_huedevices"#]
+   [#if ID!=""#]
+   [#if TITLE!=""#]<h4>[#TITLE#]</h4>[#endif TITLE#]
+<ul class="nav nav-tabs">
+  <li[#if TAB=""#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab="><#LANG_GENERAL#></a>
+  </li>
+  <li[#if TAB="data"#] class="active"[#endif#]>
+   <a href="?data_source=<#DATA_SOURCE#>&view_mode=<#VIEW_MODE#>&id=<#ID#>&tab=data">&#060#LANG_DATA#&#062</a>
+  </li>
+</ul>
+&nbsp;<br/>
+   [#endif ID#]
+   [#if TAB=""#]
+    [#inc huedevices_edit_default.html#]
+   [#endif TAB#]
+   [#if TAB="data"#]
+    [#inc huedevices_edit_data.html#]
+   [#endif TAB#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices edit -->
+ <!-- table huedevices view --> 
+ [#if VIEW_MODE="view_huedevices"#]
+   [#if TAB=""#]
+    [#inc huedevices_view_default.html#]
+   [#endif TAB#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices view -->
+ [#endif DATA_SOURCE#]
+ <!-- action usual -->
+ [#if DATA_SOURCE="huedevices_property"#]
+ <!-- table huedevices_property search -->
+ [#if VIEW_MODE="search_huedevices_property" || VIEW_MODE=""#]
+  [#inc huedevices_property_search_admin.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices_property search -->
+ <!-- table huedevices_property edit -->
+ [#if VIEW_MODE="edit_huedevices_property"#]
+   [#inc huedevices_property_edit.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices_property edit -->
+ <!-- table huedevices_property view --> 
+ [#if VIEW_MODE="view_huedevices_property"#]
+   [#inc huedevices_property_view.html#]
+ [#endif VIEW_MODE#]
+ <!-- / table huedevices_property view -->
+ [#endif DATA_SOURCE#]
