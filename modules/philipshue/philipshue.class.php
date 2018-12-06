@@ -297,20 +297,21 @@ function usual(&$out) {
    $total=count($properties);
    if ($total) {
     for($i=0;$i<$total;$i++) {
-        $dev_rec_prop = SQLSelectOne("SELECT * FROM huedevices_property WHERE  ID=".(int)$properties[$i]["ID"]);
+        $dev_rec_prop = SQLSelectOne("SELECT $table.*, huedevices.LAMPID FROM $table 
+LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=".(int)$properties[$i]["ID"]);
         if ($dev_rec_prop["TITLE"]=="hex")
-        $hue->setLightToHex($dev_rec_prop["HUEDEVICES_ID"], $value);
+        $hue->setLightToHex($$dev_rec_prop["LAMPID"], $value);
         if ($dev_rec_prop["TITLE"]=="bri")
-            $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], array("bri"=>round(254/100*$value)));
-          if ($dev_rec_prop["TITLE"] == "on") {
+            $hue->setLightState($dev_rec_prop["LAMPID"], array("bri"=>round(254/100*$value)));
+        if ($dev_rec_prop["TITLE"] == "on") {
             if ($value == 1)
-                $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], array("on" => true));
+                $hue->setLightState($dev_rec_prop["LAMPID"], array("on" => true));
             else
-                $hue->setLightState($dev_rec_prop["HUEDEVICES_ID"], array("on" => false));
-            
+                $hue->setLightState($dev_rec_prop["LAMPID"], array("on" => false));
+
         }
 
-    }
+        }
    }
  }
 
@@ -382,6 +383,7 @@ function usual(&$out) {
                 $dev_rec['UUID'] = $light['uniqueid'];
                 $dev_rec['TITLE'] = $light['name'];
                 $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
+                $dev_rec['LAMPID'] = $light_id;
                 $dev_rec['ID'] = SQLInsert('huedevices', $dev_rec);
 
             }
@@ -517,6 +519,7 @@ huedevices_property -
  huedevices: ID int(10) unsigned NOT NULL auto_increment
  huedevices: TITLE varchar(100) NOT NULL DEFAULT ''
  huedevices: UUID varchar(255) NOT NULL DEFAULT ''
+ huedevices: LAMPID int(10) unsigned NOT NULL
  huedevices: MODELID varchar(255) NOT NULL DEFAULT ''
  huedevices: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  huedevices: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
