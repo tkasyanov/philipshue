@@ -376,6 +376,7 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=".(int)$p
             if ($dev_rec['ID']) {
                 $dev_rec['TITLE'] = $light['name'];
                 $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
+				$dev_rec['LAMPID'] = $light_id;
                 SQLUpdate('huedevices', $dev_rec);
             } else{
                 $dev_rec = array();
