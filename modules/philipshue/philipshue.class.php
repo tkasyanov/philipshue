@@ -300,7 +300,7 @@ function usual(&$out) {
         $dev_rec_prop = SQLSelectOne("SELECT $table.*, huedevices.LAMPID FROM $table 
 LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=".(int)$properties[$i]["ID"]);
         if ($dev_rec_prop["TITLE"]=="hex")
-        $hue->setLightToHex($$dev_rec_prop["LAMPID"], $value);
+        $hue->setLightToHex($dev_rec_prop["LAMPID"], $value);
         if ($dev_rec_prop["TITLE"]=="bri")
             $hue->setLightState($dev_rec_prop["LAMPID"], array("bri"=>round(254/100*$value)));
         if ($dev_rec_prop["TITLE"] == "on") {
@@ -376,7 +376,7 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=".(int)$p
             if ($dev_rec['ID']) {
                 $dev_rec['TITLE'] = $light['name'];
                 $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
-				$dev_rec['LAMPID'] = $light_id;
+                $dev_rec['LAMPID'] = $light_id;
                 SQLUpdate('huedevices', $dev_rec);
             } else{
                 $dev_rec = array();
