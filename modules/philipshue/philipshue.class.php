@@ -571,8 +571,8 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
  huedevices: TITLE varchar(100) NOT NULL DEFAULT ''
  huedevices: UUID varchar(255) NOT NULL DEFAULT ''
  huedevices: LAMPID int(10) unsigned NOT NULL
- huedevices: IP varchar(50) unsigned NOT NULL DEFAULT ''
- huedevices: PASSWORD varchar(50) unsigned NOT NULL DEFAULT ''
+ huedevices: IP varchar(50)  NOT NULL DEFAULT ''
+ huedevices: PASSWORD varchar(50)  NOT NULL DEFAULT ''
  huedevices: MODELID varchar(255) NOT NULL DEFAULT ''
  huedevices: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  huedevices: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
