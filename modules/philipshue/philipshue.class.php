@@ -474,50 +474,60 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
 
             echo "Philips Hue Bridge Finder", "\n\n";
             echo "Checking meethue.com if the bridge has phoned home:", "\n";
-            $response = @file_get_contents('http://www.meethue.com/api/nupnp');
 
-            if ($response === false) {
-                $response = @file_get_contents('https://dresden-light.appspot.com/discover');
-            }
 
-            // Don't continue if bad response
-            if ($response === false) {
-                echo "\tRequest failed. Ensure that you have internet connection.";
-                exit(1);
-            }
+            $url_array=array(
+                'http://www.meethue.com/api/nupnp',
+                'https://dresden-light.appspot.com/discover'
+            );
 
-            echo "\tRequest succeeded", "\n\n";
 
-            // Parse the JSON response
-            $bridges = json_decode($response);
-            echo "Найдено ", count($bridges), "bridges \n";
-            // Iterate through each bridge
-            foreach ($bridges as $key => $bridge) {
-                echo "\tBridge #", ++$key, "\n";
-                echo "\t\tID: ", $bridge->id, "\n";
-                echo "\t\tInternal IP Address: ", $bridge->internalipaddress, "\n";
-                echo "\t\tMAC Address: ", $bridge->macaddress, "\n";
-                echo "\n";
-                global $api_url;
-                $this->config['API_URL'] = $bridge->internalipaddress;
-                $this->saveConfig();
-                $dev_rec = SQLSelectOne("SELECT * FROM huedevices WHERE  UUID='" . $bridge->id . "' ");
-                if ($dev_rec['ID']) {
-                    $dev_rec['TITLE'] = "Bridge ";
-                    $dev_rec['IP'] = $bridge->internalipaddress;
-                    $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
-                    SQLUpdate('huedevices', $dev_rec);
-                } else {
-                    $dev_rec = array();
-                    $dev_rec['MODELID'] = "BRIDGE";
-                    $dev_rec['UUID'] = $bridge->id;
-                    $dev_rec['TITLE'] = "Bridge";
-                    $dev_rec['IP'] = $bridge->internalipaddress;
-                    $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
-                    $dev_rec['ID'] = SQLInsert('huedevices', $dev_rec);
-
+            foreach ($url_array as $url){
+                $response = @file_get_contents($url);
+                // Don't continue if bad response
+                if ($response === false) {
+                    echo "\tRequest failed. Ensure that you have internet connection.";
+                    exit(1);
                 }
+
+                echo "\tRequest succeeded", "\n\n";
+
+                // Parse the JSON response
+                $bridges = json_decode($response);
+                echo "Найдено ", count($bridges), "bridges \n";
+                // Iterate through each bridge
+                foreach ($bridges as $key => $bridge) {
+                    echo "\tBridge #", ++$key, "\n";
+                    echo "\t\tID: ", $bridge->id, "\n";
+                    echo "\t\tInternal IP Address: ", $bridge->internalipaddress, "\n";
+                    echo "\t\tMAC Address: ", $bridge->macaddress, "\n";
+                    echo "\n";
+                    global $api_url;
+                    $this->config['API_URL'] = $bridge->internalipaddress;
+                    $this->saveConfig();
+                    $dev_rec = SQLSelectOne("SELECT * FROM huedevices WHERE  UUID='" . $bridge->id . "' ");
+                    if ($dev_rec['ID']) {
+                        $dev_rec['TITLE'] = "Bridge ";
+                        $dev_rec['IP'] = $bridge->internalipaddress;
+                        $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
+                        SQLUpdate('huedevices', $dev_rec);
+                    } else {
+                        $dev_rec = array();
+                        $dev_rec['MODELID'] = "BRIDGE";
+                        $dev_rec['UUID'] = $bridge->id;
+                        $dev_rec['TITLE'] = "Bridge";
+                        $dev_rec['IP'] = $bridge->internalipaddress;
+                        $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
+                        $dev_rec['ID'] = SQLInsert('huedevices', $dev_rec);
+
+                    }
+                }
+
+
             }
+
+
+
         }
 
 
@@ -571,8 +581,8 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
  huedevices: TITLE varchar(100) NOT NULL DEFAULT ''
  huedevices: UUID varchar(255) NOT NULL DEFAULT ''
  huedevices: LAMPID int(10) unsigned NOT NULL
- huedevices: IP varchar(50)  NOT NULL DEFAULT ''
- huedevices: PASSWORD varchar(50)  NOT NULL DEFAULT ''
+ huedevices: IP varchar(50) NOT NULL DEFAULT ''
+ huedevices: PASSWORD varchar(50) unsigned NOT NULL DEFAULT ''
  huedevices: MODELID varchar(255) NOT NULL DEFAULT ''
  huedevices: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  huedevices: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
