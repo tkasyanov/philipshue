@@ -4,13 +4,12 @@
  <a href="?view_mode=discover_bridge" class="btn btn-default"><i class="glyphicon glyphicon-search"></i> <#LANG_HUE_RESCAN_BRIDGE#></a>
  <a href="?view_mode=discovery" class="btn btn-default"><i class="glyphicon glyphicon-search"></i> <#LANG_HUE_RESCAN_DEVICES#></a>
 
- <a onclick="auth_huebridge();" data-toggle="modal" data-target="#auth_huebridge"  class="btn btn-default" title="Auth"><i class="glyphicon glyphicon-user"></i> <#LANG_HUE_AUTH#></a>
  <a href="?view_mode=edit_huedevices&data_source=<#DATA_SOURCE#>" class="btn btn-default"><i class="glyphicon glyphicon-plus"></i> <#LANG_ADD#></a>
 
 </p>
 <script type="text/javascript">
-    function auth_huebridge() {
-        var url="/ajax/philipshue.html?op=auth";
+    function auth_huebridge(uuid) {
+        var url="/ajax/philipshue.html?op=auth&uuid="+uuid;
         $("#auth_log").html('wait...');
         $.ajax({
             url: url,
@@ -115,8 +114,12 @@
  </td>
  <td width="1%" nowrap>
   <div>
-  [#if "<#ACTION#>"=="admin"#]
-   <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_huedevices&id=[#ID#]" class="btn btn-default" title="Edit"><i class="glyphicon glyphicon-pencil"></i></a>
+
+   [#if MODELID=="BRIDGE"#]
+   <a onclick="auth_huebridge('[#UUID#]')" class="btn btn-default"  data-toggle="modal" data-target="#auth_huebridge"  title="Auth"><i class="glyphicon glyphicon-user"></i></a>
+   [#endif MODELID#]
+   [#if "<#ACTION#>"=="admin"#]
+    <a href="?data_source=<#DATA_SOURCE#>&view_mode=edit_huedevices&id=[#ID#]" class="btn btn-default" title="Edit"><i class="glyphicon glyphicon-pencil"></i></a>
     <a href="?data_source=<#DATA_SOURCE#>&view_mode=delete_huedevices&id=[#ID#]" onClick="return confirm('Are you sure? Please confirm.')" class="btn btn-default" title="Delete"><i class="glyphicon glyphicon-remove"></i></a>
   [#endif ACTION#]
   </div>
