@@ -319,15 +319,15 @@ class philipshue extends module
     function propertySetHandle($object, $property, $value)
     {
         $this->getConfig();
-        $hue = new \AlphaHue\AlphaHue($this->config["API_URL"], $this->config["API_KEY"]);
-
         $table = 'huedevices_property';
         $properties = SQLSelect("SELECT ID FROM $table WHERE LINKED_OBJECT LIKE '" . DBSafe($object) . "' AND LINKED_PROPERTY LIKE '" . DBSafe($property) . "'");
         $total = count($properties);
         if ($total) {
             for ($i = 0; $i < $total; $i++) {
-                $dev_rec_prop = SQLSelectOne("SELECT $table.*, huedevices.LAMPID FROM $table 
+                $dev_rec_prop = SQLSelectOne("SELECT $table.*, huedevices.LAMPID,huedevices.IP,huedevices.PASSWORD FROM $table 
 LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)$properties[$i]["ID"]);
+                $hue = new \AlphaHue\AlphaHue($dev_rec_prop["IP"], $dev_rec_prop["PASSWORD"]);
+
                 if ($dev_rec_prop["TITLE"] == "hex")
                     $hue->setLightToHex($dev_rec_prop["LAMPID"], $value);
                 if ($dev_rec_prop["TITLE"] == "bri")
@@ -400,18 +400,23 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
             foreach ($light_ids as $light_id) {
 
                 $light = $hue->getLightState($light_id);
+                DebMes($light);
+                $light['uniqueid'] = str_replace(':','',$light['uniqueid']);
 
-                if (strlen($light['uniqueid']) < 25) continue;
+                if (strlen($light['uniqueid']) < 15) continue;
                 $dev_rec = SQLSelectOne("SELECT * FROM huedevices WHERE  UUID='" . $light['uniqueid'] . "' ");
                 if ($dev_rec['ID']) {
                     $dev_rec['TITLE'] = $light['name'];
+                    $dev_rec['BRIDGEUUID'] = $bridge[$i]['UUID'];
                     $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                     $dev_rec['LAMPID'] = $light_id;
                     SQLUpdate('huedevices', $dev_rec);
                 } else {
                     $dev_rec = array();
                     $dev_rec['MODELID'] = $light['modelid'];
+                    $dev_rec['TYPE'] =$light['type'];
                     $dev_rec['UUID'] = $light['uniqueid'];
+                    $dev_rec['BRIDGEUUID'] = $bridge[$i]['UUID'];
                     $dev_rec['TITLE'] = $light['name'];
                     $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                     $dev_rec['LAMPID'] = $light_id;
@@ -436,16 +441,20 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
             $listSensors = $hue->getSensors();
 
             foreach ($listSensors as $sensor) {
-                if (strlen($sensor['uniqueid']) < 25) continue;
+                $sensor['uniqueid'] = str_replace(':','',$sensor['uniqueid']);
+                if (strlen($sensor['uniqueid']) < 15) continue;
                 $dev_rec = SQLSelectOne("SELECT * FROM huedevices WHERE  UUID='" . $sensor['uniqueid'] . "' ");
                 if ($dev_rec['ID']) {
+                    $dev_rec['BRIDGEUUID'] = $bridge[$i]['UUID'];
                     $dev_rec['TITLE'] = $sensor['name'];
                     $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                     SQLUpdate('huedevices', $dev_rec);
                 } else {
                     $dev_rec = array();
                     $dev_rec['MODELID'] = $sensor['modelid'];
+                    $dev_rec['TYPE'] =$sensor['type'];
                     $dev_rec['UUID'] = $sensor['uniqueid'];
+                    $dev_rec['BRIDGEUUID'] = $bridge[$i]['UUID'];
                     $dev_rec['TITLE'] = $sensor['name'];
                     $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                     $dev_rec['ID'] = SQLInsert('huedevices', $dev_rec);
@@ -509,6 +518,7 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
                     if ($dev_rec['ID']) {
                         $dev_rec['TITLE'] = "Bridge ";
                         $dev_rec['IP'] = $bridge->internalipaddress;
+                        if (strlen($bridge->internalport)>0) $dev_rec['IP'].=':'.$bridge->internalport;
                         $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                         SQLUpdate('huedevices', $dev_rec);
                     } else {
@@ -517,6 +527,7 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
                         $dev_rec['UUID'] = $bridge->id;
                         $dev_rec['TITLE'] = "Bridge";
                         $dev_rec['IP'] = $bridge->internalipaddress;
+                        if (strlen($bridge->internalport)>0) $dev_rec['IP'].=':'.$bridge->internalport;
                         $dev_rec['UPDATED'] = date('Y-m-d H:i:s');
                         $dev_rec['ID'] = SQLInsert('huedevices', $dev_rec);
 
@@ -583,7 +594,9 @@ LEFT JOIN huedevices ON `HUEDEVICES_ID`=huedevices.ID WHERE  $table.ID=" . (int)
  huedevices: LAMPID int(10) unsigned NOT NULL
  huedevices: IP varchar(50) NOT NULL DEFAULT ''
  huedevices: PASSWORD varchar(50) unsigned NOT NULL DEFAULT ''
+ huedevices: BRIDGEUUID varchar(50) unsigned NOT NULL DEFAULT ''
  huedevices: MODELID varchar(255) NOT NULL DEFAULT ''
+ huedevices: TYPE varchar(255) NOT NULL DEFAULT ''
  huedevices: LINKED_OBJECT varchar(100) NOT NULL DEFAULT ''
  huedevices: LINKED_PROPERTY varchar(100) NOT NULL DEFAULT ''
  huedevices: LINKED_METHOD varchar(100) NOT NULL DEFAULT ''
